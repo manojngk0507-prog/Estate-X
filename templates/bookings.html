@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!-- templates/bookings.html – Booking list page (shared by admin and user) -->
+{% extends "base.html" %}
+{% block title %}{% if is_admin %}All Bookings{% else %}My Bookings{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{% if is_admin %}All Booking Requests{% else %}My Bookings{% endif %}</h1>
+    {% if is_admin %}
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-small">Back to Dashboard</a>
+    {% endif %}
+</div>
+
+{% if bookings %}
+<table>
+    <thead>
+        <tr>
+            <th>Booking #</th>
+            {% if is_admin %}<th>User</th>{% endif %}
+            <th>Property</th>
+            <th>Location</th>
+            <th>Price (Rs)</th>
+            <th>Booking Date</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Agreement No.</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in bookings %}
+        <tr>
+            <td>{{ b.id }}</td>
+            {% if is_admin %}
+            <td>
+                {{ b.user_name }}<br>
+                <small>{{ b.user_email }}</small>
+            </td>
+            {% endif %}
+            <td>{{ b.property_title }}</td>
+            <td>{{ b.location }}</td>
+            <td>{{ "{:,.0f}".format(b.price) }}</td>
+            <td>{{ b.booking_date }}</td>
+            <td>
+                {% if b.status == 'Pending' %}
+                    <span style="color:#e67e00;">Pending</span>
+                {% elif b.status == 'Approved' %}
+                    <span style="color:green;">Approved</span>
+                {% else %}
+                    <span style="color:red;">Rejected</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if b.payment_status == 'Paid' %}
+                    <span style="color:green;">Paid</span>
+                {% else %}
+                    Pending
+                {% endif %}
+            </td>
+            <td>{{ b.agreement_number }}</td>
+            <td>
+                {% if is_admin %}
+                    {% if b.status == 'Pending' %}
+                        <a href="{{ url_for('admin.booking_action', booking_id=b.id, action='Approved') }}"
+                           class="btn btn-small"
+                           onclick="return confirm('Approve this booking?')">Approve</a>
+                        &nbsp;
+                        <a href="{{ url_for('admin.booking_action', booking_id=b.id, action='Rejected') }}"
+                           class="btn btn-small btn-danger"
+                           onclick="return confirm('Reject this booking?')">Reject</a>
+                    {% else %}
+                        <em style="color:#666;">{{ b.status }}</em>
+                    {% endif %}
+                {% else %}
+                    {# User side: show payment button if approved and not yet paid #}
+                    {% if b.status == 'Approved' and b.payment_status == 'Pending' %}
+                        <a href="{{ url_for('user.payment', booking_id=b.id) }}"
+                           class="btn btn-small">Proceed to Payment</a>
+                    {% elif b.payment_status == 'Paid' %}
+                        <span style="color:green;">Payment Done</span>
+                    {% else %}
+                        –
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p class="no-results">
+        {% if is_admin %}No bookings have been made yet.{% else %}You have not made any bookings yet.
+            <a href="{{ url_for('user.property_list') }}">Browse properties</a>{% endif %}
+    </p>
+{% endif %}
+
+{% endblock %}

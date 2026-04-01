@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!-- templates/property_list.html – Browse all available properties with filters -->
+{% extends "base.html" %}
+{% block title %}Properties{% endblock %}
+
+{% block content %}
+<h1>Property Listings</h1>
+
+<!-- Search / Filter Bar -->
+<div class="search-bar">
+    <form method="GET" action="{{ url_for('user.property_list') }}">
+        <div class="form-group">
+            <label>Location:</label>
+            <input type="text" name="location" value="{{ location or '' }}" placeholder="City or area">
+        </div>
+
+        <div class="form-group">
+            <label>Min Price (Rs):</label>
+            <input type="number" name="min_price" value="{{ min_price or '' }}" placeholder="e.g. 500000">
+        </div>
+
+        <div class="form-group">
+            <label>Max Price (Rs):</label>
+            <input type="number" name="max_price" value="{{ max_price or '' }}" placeholder="e.g. 5000000">
+        </div>
+
+        <div class="form-group">
+            <label>Bedrooms:</label>
+            <select name="bedrooms">
+                <option value="">Any</option>
+                {% for n in [1, 2, 3, 4, 5] %}
+                    <option value="{{ n }}" {% if bedrooms == n %}selected{% endif %}>{{ n }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button type="submit">Search</button>
+            <a href="{{ url_for('user.property_list') }}" class="btn" style="margin-left:6px;">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Results -->
+<p>Showing {{ properties|length }} propert{{ 'y' if properties|length == 1 else 'ies' }}</p>
+<hr>
+
+{% if properties %}
+    <div class="property-grid">
+        {% for prop in properties %}
+        <div class="property-card">
+            {% if prop.image_path %}
+                <img src="{{ url_for('uploaded_file', filename=prop.image_path) }}"
+                     alt="{{ prop.title }}">
+            {% else %}
+                <div style="width:100%;height:160px;background:#eeeeee;display:flex;
+                            align-items:center;justify-content:center;border:1px solid #ccc;
+                            margin-bottom:8px;font-size:12px;color:#888;">No Image</div>
+            {% endif %}
+
+            <h3>
+                {{ prop.title }}
+                {% if prop.is_verified %}
+                    <span class="badge-verified">Verified</span>
+                {% endif %}
+            </h3>
+            <p>Location: {{ prop.location }}</p>
+            <p>Price: Rs. {{ "{:,.0f}".format(prop.price) }}</p>
+            <p>Bedrooms: {{ prop.bedrooms }} | Bathrooms: {{ prop.bathrooms }}</p>
+            <p>Area: {{ prop.area }} sq ft</p>
+            <p>
+                Status:
+                {% if prop.status == 'Available' %}
+                    <span class="badge-available">Available</span>
+                {% else %}
+                    <span class="badge-sold">Sold</span>
+                {% endif %}
+            </p>
+            <br>
+            <a href="{{ url_for('user.property_details', property_id=prop.id) }}"
+               class="btn btn-small">View Details</a>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="no-results">No properties found matching your search criteria.</p>
+{% endif %}
+
+{% endblock %}

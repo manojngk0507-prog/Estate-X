@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!-- templates/add_property.html – Form to add a new property (Admin) -->
+{% extends "base.html" %}
+{% block title %}Add Property{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Add New Property</h1>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-small">Back to Dashboard</a>
+</div>
+
+<form method="POST" action="{{ url_for('admin.add_property_view') }}"
+      enctype="multipart/form-data" style="max-width:600px;">
+
+    <div class="form-group">
+        <label for="title">Property Title: *</label>
+        <input type="text" id="title" name="title" required
+               placeholder="e.g. 3BHK Apartment in Andheri West">
+    </div>
+
+    <div class="form-group">
+        <label for="location">Location: *</label>
+        <input type="text" id="location" name="location" required
+               placeholder="e.g. Mumbai, Maharashtra">
+    </div>
+
+    <div class="form-group">
+        <label for="price">Price (Rs): *</label>
+        <input type="number" id="price" name="price" required min="0"
+               placeholder="e.g. 2500000">
+    </div>
+
+    <div class="form-group">
+        <label for="bedrooms">Bedrooms: *</label>
+        <input type="number" id="bedrooms" name="bedrooms" required min="0"
+               placeholder="e.g. 3">
+    </div>
+
+    <div class="form-group">
+        <label for="bathrooms">Bathrooms: *</label>
+        <input type="number" id="bathrooms" name="bathrooms" required min="0"
+               placeholder="e.g. 2">
+    </div>
+
+    <div class="form-group">
+        <label for="area">Area (sq ft): *</label>
+        <input type="number" id="area" name="area" required min="0"
+               placeholder="e.g. 1200">
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description"
+                  placeholder="Describe the property features, amenities, etc."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="image">Property Image (JPG/PNG, max 5MB):</label>
+        <input type="file" id="image" name="image" accept="image/*">
+    </div>
+
+    <div class="form-group">
+        <button type="submit">Add Property</button>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn"
+           style="margin-left:10px;background:#888;border-color:#888;">Cancel</a>
+    </div>
+</form>
+{% endblock %}

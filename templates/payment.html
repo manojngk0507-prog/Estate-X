@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!-- templates/payment.html – Simulated payment page -->
+{% extends "base.html" %}
+{% block title %}Payment{% endblock %}
+
+{% block content %}
+<div class="payment-box">
+    <h1>Proceed to Payment</h1>
+
+    <p>You're about to complete payment for the following booking:</p>
+    <hr>
+
+    <table class="property-info-table">
+        <tr>
+            <td>Agreement No.</td>
+            <td><strong>{{ booking.agreement_number }}</strong></td>
+        </tr>
+        <tr>
+            <td>Property</td>
+            <td>{{ property.title }}</td>
+        </tr>
+        <tr>
+            <td>Location</td>
+            <td>{{ property.location }}</td>
+        </tr>
+        <tr>
+            <td>Amount to Pay</td>
+            <td><strong>Rs. {{ "{:,.0f}".format(property.price) }}</strong></td>
+        </tr>
+        <tr>
+            <td>Booking Date</td>
+            <td>{{ booking.booking_date }}</td>
+        </tr>
+        <tr>
+            <td>Booking Status</td>
+            <td style="color:green;">{{ booking.status }}</td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <!-- Simulated payment form (no real gateway) -->
+    <p style="color:#666;font-size:12px;">
+        [This is a simulated payment. No real transaction will occur.]
+    </p>
+
+    <form method="POST" action="{{ url_for('user.payment', booking_id=booking.id) }}">
+        <div class="form-group">
+            <label for="card_name">Cardholder Name:</label>
+            <input type="text" id="card_name" name="card_name"
+                   placeholder="Name on card" value="Demo User">
+        </div>
+        <div class="form-group">
+            <label for="card_number">Card Number:</label>
+            <input type="text" id="card_number" name="card_number"
+                   placeholder="1234 5678 9012 3456" value="4111 1111 1111 1111" maxlength="19">
+        </div>
+        <div class="form-group">
+            <label for="expiry">Expiry (MM/YY):</label>
+            <input type="text" id="expiry" name="expiry" placeholder="MM/YY"
+                   value="12/26" maxlength="5" style="width:100px;">
+        </div>
+        <div class="form-group">
+            <label for="cvv">CVV:</label>
+            <input type="text" id="cvv" name="cvv" placeholder="123"
+                   value="123" maxlength="3" style="width:80px;">
+        </div>
+
+        <div class="form-group" style="margin-top:16px;">
+            <button type="submit"
+                    onclick="return confirm('Confirm payment of Rs. {{ '{:,.0f}'.format(property.price) }}?')">
+                Confirm & Pay
+            </button>
+            <a href="{{ url_for('user.my_bookings') }}" class="btn"
+               style="margin-left:10px;background:#888;border-color:#888;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

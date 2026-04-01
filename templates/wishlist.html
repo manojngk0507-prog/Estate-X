@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!-- templates/wishlist.html – User's saved (wishlist) properties -->
+{% extends "base.html" %}
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Wishlist</h1>
+    <a href="{{ url_for('user.property_list') }}" class="btn btn-small">Browse Properties</a>
+</div>
+
+{% if items %}
+    <div class="property-grid">
+        {% for prop in items %}
+        <div class="property-card">
+            {% if prop.image_path %}
+                <img src="{{ url_for('uploaded_file', filename=prop.image_path) }}"
+                     alt="{{ prop.title }}">
+            {% else %}
+                <div style="width:100%;height:160px;background:#eeeeee;display:flex;
+                            align-items:center;justify-content:center;border:1px solid #ccc;
+                            margin-bottom:8px;font-size:12px;color:#888;">No Image</div>
+            {% endif %}
+
+            <h3>
+                {{ prop.title }}
+                {% if prop.is_verified %}
+                    <span class="badge-verified">Verified</span>
+                {% endif %}
+            </h3>
+            <p>Location: {{ prop.location }}</p>
+            <p>Price: Rs. {{ "{:,.0f}".format(prop.price) }}</p>
+            <p>Bedrooms: {{ prop.bedrooms }} | Bathrooms: {{ prop.bathrooms }}</p>
+            <p>
+                Status:
+                {% if prop.status == 'Available' %}
+                    <span class="badge-available">Available</span>
+                {% else %}
+                    <span class="badge-sold">Sold</span>
+                {% endif %}
+            </p>
+            <br>
+            <a href="{{ url_for('user.property_details', property_id=prop.id) }}"
+               class="btn btn-small">View Details</a>
+            &nbsp;
+            <a href="{{ url_for('user.wishlist_remove', property_id=prop.id) }}"
+               class="btn btn-small btn-danger"
+               onclick="return confirm('Remove from wishlist?')">Remove</a>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="no-results">
+        Your wishlist is empty.
+        <a href="{{ url_for('user.property_list') }}">Start browsing properties</a>.
+    </p>
+{% endif %}
+
+{% endblock %}

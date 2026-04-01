@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- templates/base.html – Base layout inherited by all pages -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Estate X{% endblock %} – Online Property Selling System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav>
+    <a href="{{ url_for('user.index') }}">Home</a>
+    <a href="{{ url_for('user.property_list') }}">Properties</a>
+
+    {% if session.get('user_id') %}
+        {% if session.get('user_role') == 'admin' %}
+            <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
+            <a href="{{ url_for('admin.bookings') }}">Bookings</a>
+            <a href="{{ url_for('admin.add_property_view') }}">Add Property</a>
+        {% else %}
+            <a href="{{ url_for('user.my_bookings') }}">My Bookings</a>
+            <a href="{{ url_for('user.my_wishlist') }}">Wishlist</a>
+        {% endif %}
+        <span>Logged in as: {{ session.get('user_name') }} ({{ session.get('user_role') }})
+            &nbsp;|&nbsp; <a href="{{ url_for('auth.logout') }}" style="color:#ffcccc;">Logout</a>
+        </span>
+    {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('auth.register') }}">Register</a>
+    {% endif %}
+</nav>
+
+<!-- Flash Messages -->
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Page Content -->
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Footer -->
+<footer>
+    <p>Estate X &copy; 2024 – Online Property Selling System | Academic Project</p>
+</footer>
+
+</body>
+</html>

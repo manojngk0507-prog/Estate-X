@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!-- templates/admin_dashboard.html – Admin control panel -->
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+<p>Welcome, {{ session.get('user_name') }}. Manage properties and bookings below.</p>
+
+<hr>
+
+<!-- Quick Stats -->
+<div class="stats-row">
+    <div class="stat-box">
+        <div class="stat-number">{{ properties|length }}</div>
+        <div class="stat-label">Total Properties</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-number">{{ properties|selectattr('status','eq','Available')|list|length }}</div>
+        <div class="stat-label">Available</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-number">{{ properties|selectattr('status','eq','Sold')|list|length }}</div>
+        <div class="stat-label">Sold</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-number">{{ bookings|length }}</div>
+        <div class="stat-label">Total Bookings</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-number">{{ bookings|selectattr('status','eq','Pending')|list|length }}</div>
+        <div class="stat-label">Pending Bookings</div>
+    </div>
+</div>
+
+<!-- Add Property Button -->
+<div style="margin-bottom:12px;">
+    <a href="{{ url_for('admin.add_property_view') }}" class="btn">+ Add New Property</a>
+</div>
+
+<!-- ── Property Management Table ────────────────────────────── -->
+<h2>All Properties</h2>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Location</th>
+            <th>Price (Rs)</th>
+            <th>Beds</th>
+            <th>Baths</th>
+            <th>Status</th>
+            <th>Verified</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if properties %}
+        {% for prop in properties %}
+        <tr>
+            <td>{{ prop.id }}</td>
+            <td>
+                <a href="{{ url_for('user.property_details', property_id=prop.id) }}">
+                    {{ prop.title }}
+                </a>
+            </td>
+            <td>{{ prop.location }}</td>
+            <td>{{ "{:,.0f}".format(prop.price) }}</td>
+            <td>{{ prop.bedrooms }}</td>
+            <td>{{ prop.bathrooms }}</td>
+            <td>
+                {% if prop.status == 'Available' %}
+                    <span class="badge-available">Available</span>
+                    &nbsp;
+                    <a href="{{ url_for('admin.toggle_status', property_id=prop.id, status='Sold') }}"
+                       class="btn btn-small btn-danger"
+                       onclick="return confirm('Mark as Sold?')">Mark Sold</a>
+                {% else %}
+                    <span class="badge-sold">Sold</span>
+                    &nbsp;
+                    <a href="{{ url_for('admin.toggle_status', property_id=prop.id, status='Available') }}"
+                       class="btn btn-small"
+                       onclick="return confirm('Mark as Available?')">Mark Available</a>
+                {% endif %}
+            </td>
+            <td>
+                {% if prop.is_verified %}
+                    <span class="badge-verified">Verified</span>
+                    &nbsp;
+                    <a href="{{ url_for('admin.toggle_verified', property_id=prop.id, verified=0) }}"
+                       class="btn btn-small">Unverify</a>
+                {% else %}
+                    Not Verified
+                    &nbsp;
+                    <a href="{{ url_for('admin.toggle_verified', property_id=prop.id, verified=1) }}"
+                       class="btn btn-small">Verify</a>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('admin.edit_property', property_id=prop.id) }}"
+                   class="btn btn-small">Edit</a>
+                &nbsp;
+                <a href="{{ url_for('admin.delete_property_view', property_id=prop.id) }}"
+                   class="btn btn-small btn-danger"
+                   onclick="return confirm('Delete this property permanently?')">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="9" style="text-align:center;color:#666;">No properties added yet.</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+<hr>
+
+<!-- ── Recent Booking Requests ──────────────────────────────── -->
+<div class="page-header">
+    <h2>Recent Booking Requests</h2>
+    <a href="{{ url_for('admin.bookings') }}" class="btn btn-small">View All Bookings</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Property</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Agreement No.</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if bookings %}
+        {% for b in bookings[:10] %}  <!-- Show last 10 bookings -->
+        <tr>
+            <td>{{ b.id }}</td>
+            <td>{{ b.user_name }}<br><small>{{ b.user_email }}</small></td>
+            <td>{{ b.property_title }}</td>
+            <td>{{ b.booking_date }}</td>
+            <td>
+                {% if b.status == 'Pending' %}
+                    <span style="color:#e67e00;">Pending</span>
+                {% elif b.status == 'Approved' %}
+                    <span style="color:green;">Approved</span>
+                {% else %}
+                    <span style="color:red;">Rejected</span>
+                {% endif %}
+            </td>
+            <td>{{ b.payment_status }}</td>
+            <td>{{ b.agreement_number }}</td>
+            <td>
+                {% if b.status == 'Pending' %}
+                    <a href="{{ url_for('admin.booking_action', booking_id=b.id, action='Approved') }}"
+                       class="btn btn-small"
+                       onclick="return confirm('Approve this booking?')">Approve</a>
+                    &nbsp;
+                    <a href="{{ url_for('admin.booking_action', booking_id=b.id, action='Rejected') }}"
+                       class="btn btn-small btn-danger"
+                       onclick="return confirm('Reject this booking?')">Reject</a>
+                {% else %}
+                    <em style="color:#666;">{{ b.status }}</em>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="8" style="text-align:center;color:#666;">No bookings yet.</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+{% endblock %}

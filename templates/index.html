@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- templates/index.html – Home page -->
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div style="text-align:center; padding: 40px 20px;">
+    <!-- Logo Placeholder -->
+    <div style="margin-bottom: 20px;">
+        <!-- You can replace this emoji with an actual image tag if you have a logo file:
+             <img src="{{ url_for('static', filename='images/logo.png') }}" width="100" alt="Logo"> -->
+        <span style="font-size: 80px;">🏢</span>
+    </div>
+
+    <h1>Welcome to Estate X</h1>
+    <h3 style="color: #555; margin-bottom: 24px; border:none;">Your Trusted Online Property Selling System</h3>
+
+    <p style="font-size: 16px; line-height: 1.6; max-width: 700px; margin: 0 auto 30px auto; color: #333;">
+        Estate X is a premier real estate platform designed to make property discovery and booking easier than ever. 
+        Whether you are looking for a luxurious villa, a cozy family apartment, or a modern studio, our verified listings provide the perfect matches for your needs. 
+        Browse our extensive collection, check verified tags, and book your dream home in just a few clicks.
+    </p>
+
+    <div>
+        <a href="{{ url_for('user.property_list') }}" class="btn" style="padding: 10px 20px; font-size: 15px;">Browse Properties</a>
+        {% if not session.get('user_id') %}
+            &nbsp;
+            <a href="{{ url_for('auth.register') }}" class="btn" style="padding: 10px 20px; font-size: 15px; background-color: #555; border-color: #555;">Join Now</a>
+        {% endif %}
+    </div>
+
+    <!-- Developer Credits Section -->
+    <div style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #eee;">
+        <h4 style="color: #666; margin-bottom: 20px;">Developed By</h4>
+        <div style="display: flex; justify-content: center; gap: 50px;">
+            
+            <div style="text-align: center;">
+                <img src="{{ url_for('static', filename='images/manoj.jpg') }}" 
+                     alt="Manoj Gaonkar" 
+                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; object-position: top center; border: 3px solid #ccc; margin-bottom: 10px;">
+                <p style="font-weight: bold; margin: 0; color: #333;">Manoj Gaonkar</p>
+            </div>
+
+            <div style="text-align: center;">
+                <img src="{{ url_for('static', filename='images/shri.jpeg') }}" 
+                     alt="Shrinivas Vernekar" 
+                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; object-position: top center; border: 3px solid #ccc; margin-bottom: 10px;">
+                <p style="font-weight: bold; margin: 0; color: #333;">Shrinivas Vernekar</p>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

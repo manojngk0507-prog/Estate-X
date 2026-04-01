@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!-- templates/property_details.html – Full details for a single property -->
+{% extends "base.html" %}
+{% block title %}{{ property.title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        {{ property.title }}
+        {% if property.is_verified %}
+            <span class="badge-verified">Verified</span>
+        {% endif %}
+    </h1>
+    <a href="{{ url_for('user.property_list') }}" class="btn btn-small">Back to Listings</a>
+</div>
+
+<!-- Property Image -->
+{% if property.image_path %}
+    <img class="property-detail-img"
+         src="{{ url_for('uploaded_file', filename=property.image_path) }}"
+         alt="{{ property.title }}">
+{% else %}
+    <div style="width:500px;height:220px;background:#eeeeee;display:flex;
+                align-items:center;justify-content:center;border:1px solid #ccc;
+                margin-bottom:12px;color:#888;">No Image Available</div>
+{% endif %}
+
+<!-- Property Info Table -->
+<table class="property-info-table">
+    <tr>
+        <td>Location</td>
+        <td>{{ property.location }}</td>
+    </tr>
+    <tr>
+        <td>Price</td>
+        <td>Rs. {{ "{:,.0f}".format(property.price) }}</td>
+    </tr>
+    <tr>
+        <td>Bedrooms</td>
+        <td>{{ property.bedrooms }}</td>
+    </tr>
+    <tr>
+        <td>Bathrooms</td>
+        <td>{{ property.bathrooms }}</td>
+    </tr>
+    <tr>
+        <td>Area</td>
+        <td>{{ property.area }} sq ft</td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td>
+            {% if property.status == 'Available' %}
+                <span class="badge-available">Available</span>
+            {% else %}
+                <span class="badge-sold">Sold</span>
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>Verified</td>
+        <td>{% if property.is_verified %}Yes – Property is Verified{% else %}Not Verified{% endif %}</td>
+    </tr>
+    <tr>
+        <td>Listed On</td>
+        <td>{{ property.created_at.strftime('%d %b %Y') if property.created_at else 'N/A' }}</td>
+    </tr>
+</table>
+
+<hr>
+
+<!-- Description -->
+<h2>Description</h2>
+<p>{{ property.description or 'No description provided.' }}</p>
+
+<hr>
+
+<!-- Action Buttons -->
+{% if session.get('user_id') and session.get('user_role') == 'user' %}
+    <div>
+        {% if property.status == 'Available' %}
+            <a href="{{ url_for('user.book_property', property_id=property.id) }}"
+               class="btn"
+               onclick="return confirm('Confirm booking request for this property?')">
+               Book This Property
+            </a>
+        {% else %}
+            <button disabled style="background:#888;border-color:#888;cursor:not-allowed;">
+                Property is Sold
+            </button>
+        {% endif %}
+
+        &nbsp;&nbsp;
+
+        {% if in_wishlist %}
+            <a href="{{ url_for('user.wishlist_remove', property_id=property.id) }}"
+               class="btn btn-danger">Remove from Wishlist</a>
+        {% else %}
+            <a href="{{ url_for('user.wishlist_add', property_id=property.id) }}"
+               class="btn">Add to Wishlist</a>
+        {% endif %}
+    </div>
+
+{% elif not session.get('user_id') %}
+    <p>
+        <a href="{{ url_for('auth.login') }}">Login</a> to book this property or add it to wishlist.
+    </p>
+{% endif %}
+
+{% endblock %}
